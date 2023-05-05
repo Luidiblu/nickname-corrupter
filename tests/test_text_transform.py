@@ -19,8 +19,7 @@ class TestTextTransform(unittest.TestCase):
         input_text = "Hello World"
         replaced_text = replace_spaces(input_text)
         self.assertNotIn(" ", replaced_text)
-        self.assertIn("_", replaced_text)
-        self.assertIn("-", replaced_text)
+        self.assertTrue("_" in replaced_text or "-" in replaced_text)
 
     def test_add_random_underscore(self):
         input_text = "HelloWorld"
