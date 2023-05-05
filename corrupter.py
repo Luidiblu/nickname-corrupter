@@ -45,7 +45,12 @@ def transform_text(text: str, substitutions: Dict[str, List[str]]) -> str:
     for char in text:
         lower_char = char.lower()
         if lower_char in substitutions:
-            transformed += random.choice(substitutions[lower_char])
+            transformed_char = random.choice(substitutions[lower_char])
+            # Randomly choose between uppercase and lowercase for the transformed character
+            if random.choice([True, False]):
+                transformed += transformed_char.upper()
+            else:
+                transformed += transformed_char
         else:
             transformed += char
 
@@ -76,28 +81,52 @@ def parse_arguments() -> argparse.Namespace:
     Parse command-line arguments and return an argparse.Namespace object.
     """
     parser = argparse.ArgumentParser(
-        description="Transform text with custom character substitutions.")
-    parser.add_argument("input_text", type=str,
-                        help="Input text to be transformed.")
-    parser.add_argument("-o", "--output", type=str,
-                        help="Optional output file path. If provided, the transformed text will be saved to the specified file.")
+        description="Transform text input with custom character substitutions, replacing spaces with underscores or hyphens, and adding a random underscore at the beginning or end of the text."
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        help="Output file path. If specified, the transformed text will be saved to the provided file.",
+    )
+    parser.add_argument(
+        "-n",
+        "--number",
+        type=int,
+        default=1,
+        help="Number of nicknames to generate. Default is 1.",
+    )
     return parser.parse_args()
 
 
 def main():
     args = parse_arguments()
-    input_text = args.input_text
-    substitutions = create_substitution_dict()
-    output_text = transform_text(input_text, substitutions)
-    output_text = replace_spaces(output_text)
-    output_text = add_random_underscore(output_text)
 
+    # Create the substitution dictionary.
+    substitutions = create_substitution_dict()
+
+    # If an output file is specified, open it for writing.
     if args.output:
-        with open(args.output, "w", encoding="utf-8") as output_file:
-            output_file.write(output_text)
-        print(f"Transformed text saved to {args.output}")
-    else:
-        print(output_text)
+        output_file = open(args.output, "w", encoding="utf-8")
+
+    # Get the input text from the user.
+    input_text = input("Enter text to transform: ")
+
+    # Generate the specified number of nicknames.
+    for i in range(args.number):
+        output_text = transform_text(input_text, substitutions)
+        output_text = replace_spaces(output_text)
+        output_text = add_random_underscore(output_text)
+
+        # Write the transformed text to the output file or print it to the screen.
+        if args.output:
+            output_file.write(f"{output_text}\n\n")
+        else:
+            print(f"nick {i + 1}: {output_text}\n")
+
+    # Close the output file if it was opened.
+    if args.output:
+        output_file.close()
+        print(f"Transformed text(s) saved to {args.output}")
 
 
 if __name__ == "__main__":
